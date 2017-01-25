@@ -52,10 +52,10 @@ namespace stickyplatforms_server
     // Peer ID => Player
     private ConcurrentDictionary<long, Player> mPlayers;
 
-    Task onConnecting(IScenePeerClient client)
+    Task getMapProcedure(RequestContext<IScenePeerClient> ctx)
     {
-      // We need unique names
-      string name = client.GetUserData<string>();
+      // Make sure the client sends a unique name
+      string name = ctx.ReadObject<string>();
 
       foreach (KeyValuePair<long, Player> player in mPlayers)
       {
@@ -65,28 +65,29 @@ namespace stickyplatforms_server
         }
       }
 
-      return Task.FromResult(true);
-    }
+      if (!mPlayers.TryAdd(ctx.RemotePeer.Id, new Player(name)))
+      {
+        throw new ClientException("The getMapFilename procedure must be called only once by clients.");
+      }
 
-    Task onConnected(IScenePeerClient client)
-    {
-      string name = client.GetUserData<string>();
-      mPlayers[client.Id] = new Player(name);
-
-      return Task.FromResult(true);
-    }
-
-    Task getMapProcedure(RequestContext<IScenePeerClient> ctx)
-    {
       ctx.SendValue(mMapFilename);
+      return Task.FromResult(true);
+    }
+
+    Task onDisconnect(DisconnectedArgs args)
+    {
+      Player player = new Player("");
+      mPlayers.TryRemove(args.Peer.Id, out player);
+
+      //TODO notify other players
+
       return Task.FromResult(true);
     }
 
     public StickyPlatformsServer(ISceneHost scene)
     {
-      scene.Connecting.Add(onConnecting);
-      scene.Connected.Add(onConnected);
       scene.AddProcedure("getMapFilename", getMapProcedure);
+      scene.Disconnected.Add(onDisconnect);
     }
   }
 }
