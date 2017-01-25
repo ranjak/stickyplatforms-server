@@ -78,6 +78,7 @@
   <ItemGroup>
     <Compile Include="app.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="StickyPlatformsServer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

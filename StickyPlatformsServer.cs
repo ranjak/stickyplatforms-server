@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,9 +48,9 @@ namespace stickyplatforms_server
     }
 
     // Map file for the scene
-    private string mMapFilename;
+    private const string mMapFilename = "assets/maps/multiplayer.tmx";
     // Peer ID => Player
-    private Dictionary<long, Player> mPlayers;
+    private ConcurrentDictionary<long, Player> mPlayers;
 
     Task onConnecting(IScenePeerClient client)
     {
