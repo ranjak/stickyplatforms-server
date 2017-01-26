@@ -50,7 +50,7 @@ namespace stickyplatforms_server
     // Map file for the scene
     private const string mMapFilename = "assets/maps/multiplayer.tmx";
     // Peer ID => Player
-    private ConcurrentDictionary<long, Player> mPlayers;
+    private ConcurrentDictionary<long, Player> mPlayers = new ConcurrentDictionary<long, Player>();
 
     Task getMapProcedure(RequestContext<IScenePeerClient> ctx)
     {
