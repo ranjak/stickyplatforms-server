@@ -9,7 +9,7 @@ namespace stickyplatforms_server
 {
   class StickyPlatformsServer
   {
-    private struct Color
+    public struct Color
     {
       public byte r, g, b, a;
 
@@ -19,7 +19,7 @@ namespace stickyplatforms_server
       }
     }
 
-    private struct Vector2
+    public struct Vector2
     {
       public float x, y;
 
@@ -30,7 +30,7 @@ namespace stickyplatforms_server
       }
     }
 
-    private class Player
+    public class Player
     {
       public string name;
       public Color color;
@@ -44,7 +44,7 @@ namespace stickyplatforms_server
       }
     }
 
-    private struct SpawnMsg
+    public struct SpawnMsg
     {
       public Color color;
       public Vector2 pos;
