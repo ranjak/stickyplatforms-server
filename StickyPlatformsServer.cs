@@ -7,49 +7,50 @@ using Stormancer.Plugins;
 
 namespace stickyplatforms_server
 {
+  public struct Color
+  {
+    public byte r, g, b, a;
+
+    public Color(byte r, byte g, byte b, byte a = 255)
+    {
+      this.r = r; this.g = g; this.b = b; this.a = a;
+    }
+  }
+
+  public struct Vector2
+  {
+    public float x, y;
+
+    public Vector2(float x, float y)
+    {
+      this.x = x;
+      this.y = y;
+    }
+  }
+
+  public class Player
+  {
+    public string name;
+    public Color color;
+    public Vector2 position;
+    public Vector2 velocity;
+    public int hp;
+
+    public Player(string name)
+    {
+      this.name = name;
+    }
+  }
+
+  public struct SpawnMsg
+  {
+    public Color color;
+    public Vector2 pos;
+    public int hp;
+  }
+
   class StickyPlatformsServer
   {
-    public struct Color
-    {
-      public byte r, g, b, a;
-
-      public Color(byte r, byte g, byte b, byte a = 255)
-      {
-        this.r = r; this.g = g; this.b = b; this.a = a;
-      }
-    }
-
-    public struct Vector2
-    {
-      public float x, y;
-
-      public Vector2(float x, float y)
-      {
-        this.x = x;
-        this.y = y;
-      }
-    }
-
-    public class Player
-    {
-      public string name;
-      public Color color;
-      public Vector2 position;
-      public Vector2 velocity;
-      public int hp;
-
-      public Player(string name)
-      {
-        this.name = name;
-      }
-    }
-
-    public struct SpawnMsg
-    {
-      public Color color;
-      public Vector2 pos;
-      public int hp;
-    }
 
     // Map file for the scene
     private const string mMapFilename = "assets/maps/multiplayer.tmx";
