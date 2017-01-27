@@ -4,12 +4,20 @@ using System.Threading.Tasks;
 using Stormancer;
 using Stormancer.Core;
 using Stormancer.Plugins;
+using MsgPack.Serialization;
 
 namespace stickyplatforms_server
 {
   public struct Color
   {
-    public byte r, g, b, a;
+    [MessagePackMember(0)]
+    public byte r;
+    [MessagePackMember(1)]
+    public byte g;
+    [MessagePackMember(2)]
+    public byte b;
+    [MessagePackMember(3)]
+    public byte a;
 
     public Color(byte r, byte g, byte b, byte a = 255)
     {
@@ -19,7 +27,10 @@ namespace stickyplatforms_server
 
   public struct Vector2
   {
-    public float x, y;
+    [MessagePackMember(0)]
+    public float x;
+    [MessagePackMember(1)]
+    public float y;
 
     public Vector2(float x, float y)
     {
@@ -30,10 +41,15 @@ namespace stickyplatforms_server
 
   public class Player
   {
+    [MessagePackMember(0)]
     public string name;
+    [MessagePackMember(1)]
     public Color color;
+    [MessagePackMember(2)]
     public Vector2 position;
+    [MessagePackMember(3)]
     public Vector2 velocity;
+    [MessagePackMember(4)]
     public int hp;
 
     public Player(string name)
@@ -44,8 +60,11 @@ namespace stickyplatforms_server
 
   public struct SpawnMsg
   {
+    [MessagePackMember(0)]
     public Color color;
+    [MessagePackMember(1)]
     public Vector2 pos;
+    [MessagePackMember(2)]
     public int hp;
   }
 
