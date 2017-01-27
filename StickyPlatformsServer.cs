@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Stormancer;
 using Stormancer.Core;
@@ -61,7 +58,7 @@ namespace stickyplatforms_server
 
     private ISceneHost mScene;
 
-    Task getMapProcedure(RequestContext<IScenePeerClient> ctx)
+    Task joinGameProcedure(RequestContext<IScenePeerClient> ctx)
     {
       // Make sure the client sends a unique name
       string name = ctx.ReadObject<string>();
@@ -76,7 +73,7 @@ namespace stickyplatforms_server
 
       if (!mPlayers.TryAdd(ctx.RemotePeer.Id, new Player(name)))
       {
-        throw new ClientException("The getMapFilename procedure must be called only once by clients.");
+        throw new ClientException("The joinGame procedure must be called only once by clients.");
       }
 
       ctx.SendValue(mMapFilename);
@@ -117,7 +114,12 @@ namespace stickyplatforms_server
     public StickyPlatformsServer(ISceneHost scene)
     {
       mScene = scene;
-      scene.AddProcedure("getMapFilename", getMapProcedure);
+      scene.AddProcedure("joinGame", joinGameProcedure);
+      scene.AddProcedure("getPlayerList", ctx =>
+      {
+        ctx.SendValue(mPlayers.Values);
+        return Task.FromResult(true);
+      });
       scene.Disconnected.Add(onDisconnect);
       scene.AddRoute("spawn", onPlayerSpawn, options => { return options; });
     }
