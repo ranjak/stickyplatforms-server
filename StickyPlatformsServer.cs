@@ -47,10 +47,19 @@ namespace stickyplatforms_server
       }
     }
 
+    private struct SpawnMsg
+    {
+      public Color color;
+      public Vector2 pos;
+      public int hp;
+    }
+
     // Map file for the scene
     private const string mMapFilename = "assets/maps/multiplayer.tmx";
     // Peer ID => Player
     private ConcurrentDictionary<long, Player> mPlayers = new ConcurrentDictionary<long, Player>();
+
+    private ISceneHost mScene;
 
     Task getMapProcedure(RequestContext<IScenePeerClient> ctx)
     {
@@ -79,15 +88,38 @@ namespace stickyplatforms_server
       Player player = new Player("");
       mPlayers.TryRemove(args.Peer.Id, out player);
 
-      //TODO notify other players
+      mScene.Broadcast("playerLeft", player.name);
+
+      return Task.FromResult(true);
+    }
+
+    Task onPlayerSpawn(Packet<IScenePeerClient> packet)
+    {
+      if (!mPlayers.ContainsKey(packet.Connection.Id))
+      {
+        // TODO send an error message to the client ?
+        return Task.FromResult(false);
+      }
+
+      Player thisPlayer = mPlayers[packet.Connection.Id];
+      SpawnMsg msg = packet.ReadObject<SpawnMsg>();
+
+      thisPlayer.color = msg.color;
+      thisPlayer.position = msg.pos;
+      thisPlayer.velocity = new Vector2();
+      thisPlayer.hp = msg.hp;
+
+      mScene.Broadcast("newPlayer", thisPlayer);
 
       return Task.FromResult(true);
     }
 
     public StickyPlatformsServer(ISceneHost scene)
     {
+      mScene = scene;
       scene.AddProcedure("getMapFilename", getMapProcedure);
       scene.Disconnected.Add(onDisconnect);
+      scene.AddRoute("spawn", onPlayerSpawn, options => { return options; });
     }
   }
 }
