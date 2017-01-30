@@ -135,9 +135,19 @@ namespace stickyplatforms_server
     Task updateHp(Packet<IScenePeerClient> packet)
     {
       Player thisPlayer = mPlayers[packet.Connection.Id];
-      int hp = packet.ReadObject<int>();
 
-      thisPlayer.hp = hp;
+      thisPlayer.hp = packet.ReadObject<int>();
+
+      return Task.FromResult(true);
+    }
+
+    Task updatePhysics(Packet<IScenePeerClient> packet)
+    {
+      Player thisPlayer = mPlayers[packet.Connection.Id];
+
+      thisPlayer.position = packet.ReadObject<Vector2>();
+      thisPlayer.velocity = packet.ReadObject<Vector2>();
+
       return Task.FromResult(true);
     }
 
@@ -153,6 +163,7 @@ namespace stickyplatforms_server
       scene.Disconnected.Add(onDisconnect);
       scene.AddRoute("spawn", onPlayerSpawn, _ => _);
       scene.AddRoute("updateHp", updateHp, _ => _);
+      scene.AddRoute("updatePhysics", updatePhysics, _ => _);
     }
   }
 }
