@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using System.Linq;
 using Stormancer;
 using Stormancer.Core;
 using Stormancer.Plugins;
@@ -50,7 +51,7 @@ namespace stickyplatforms_server
     [MessagePackMember(3)]
     public Vector2 velocity;
     [MessagePackMember(4)]
-    public int hp;
+    public int hp = 0;
 
     public Player(string name)
     {
@@ -131,17 +132,27 @@ namespace stickyplatforms_server
       return Task.FromResult(true);
     }
 
+    Task updateHp(Packet<IScenePeerClient> packet)
+    {
+      Player thisPlayer = mPlayers[packet.Connection.Id];
+      int hp = packet.ReadObject<int>();
+
+      thisPlayer.hp = hp;
+      return Task.FromResult(true);
+    }
+
     public StickyPlatformsServer(ISceneHost scene)
     {
       mScene = scene;
       scene.AddProcedure("joinGame", joinGameProcedure);
       scene.AddProcedure("getPlayerList", ctx =>
       {
-        ctx.SendValue(mPlayers.Values);
+        ctx.SendValue(mPlayers.Values.Where(player => player.hp > 0));
         return Task.FromResult(true);
       });
       scene.Disconnected.Add(onDisconnect);
-      scene.AddRoute("spawn", onPlayerSpawn, options => { return options; });
+      scene.AddRoute("spawn", onPlayerSpawn, _ => _);
+      scene.AddRoute("updateHp", updateHp, _ => _);
     }
   }
 }
