@@ -167,26 +167,17 @@ namespace stickyplatforms_server
     {
       Player thisPlayer = mPlayers[packet.Connection.Id];
 
-      int[][] keyUpdates = packet.ReadObject<int[][]>();
+      bool[] keyStatus = packet.ReadObject<bool[]>();
       
-      // First row is pressed keys, second is released keys
-      foreach (int key in keyUpdates[0])
-      {
-        thisPlayer.keyStatus[key] = true;
-      }
-      foreach (int key in keyUpdates[1])
-      {
-        thisPlayer.keyStatus[key] = false;
-      }
+      thisPlayer.keyStatus = keyStatus;
 
       mScene.Broadcast("remoteInputUpdate", stream =>
       {
         MsgPack.Packer.Create(stream)
-          .PackArrayHeader(3)
+          .PackArrayHeader(2)
           .Pack(thisPlayer.name)
-          .Pack(keyUpdates[0])
-          .Pack(keyUpdates[1]);
-      }, PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE_ORDERED);
+          .Pack(keyStatus);
+      }, PacketPriority.IMMEDIATE_PRIORITY, PacketReliability.UNRELIABLE);
 
       return Task.FromResult(true);
     }
