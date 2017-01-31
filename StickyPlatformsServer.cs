@@ -167,9 +167,9 @@ namespace stickyplatforms_server
     {
       Player thisPlayer = mPlayers[packet.Connection.Id];
 
-      int[] keyStatus = packet.ReadObject<int[]>();
+      bool[] keyStatus = packet.ReadObject<bool[]>();
       
-      //thisPlayer.keyStatus = keyStatus;
+      thisPlayer.keyStatus = keyStatus;
 
       mScene.Broadcast("remoteInputUpdate", stream =>
       {
