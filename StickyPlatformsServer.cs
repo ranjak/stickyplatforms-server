@@ -6,6 +6,7 @@ using Stormancer;
 using Stormancer.Core;
 using Stormancer.Plugins;
 using MsgPack.Serialization;
+using MsgPack;
 
 namespace stickyplatforms_server
 {
@@ -42,6 +43,8 @@ namespace stickyplatforms_server
 
   public class Player
   {
+    public static int NB_GAME_KEYS = 6;
+
     [MessagePackMember(0)]
     public string name;
     [MessagePackMember(1)]
@@ -52,10 +55,17 @@ namespace stickyplatforms_server
     public Vector2 velocity;
     [MessagePackMember(4)]
     public int hp = 0;
+    // Which game commands this player is currently holding
+    [MessagePackMember(5)]
+    public bool[] keyStatus = new bool[NB_GAME_KEYS];
 
     public Player(string name)
     {
       this.name = name;
+      for (int i=0; i<keyStatus.Length; i++)
+      {
+        keyStatus[i] = false;
+      }
     }
   }
 
@@ -152,6 +162,34 @@ namespace stickyplatforms_server
       return Task.FromResult(true);
     }
 
+    Task updateKeys(Packet<IScenePeerClient> packet)
+    {
+      Player thisPlayer = mPlayers[packet.Connection.Id];
+
+      int[][] keyUpdates = packet.ReadObject<int[][]>();
+      
+      // First row is pressed keys, second is released keys
+      foreach (int key in keyUpdates[0])
+      {
+        thisPlayer.keyStatus[key] = true;
+      }
+      foreach (int key in keyUpdates[1])
+      {
+        thisPlayer.keyStatus[key] = false;
+      }
+
+      mScene.Broadcast("remoteInputUpdate", stream =>
+      {
+        MsgPack.Packer.Create(stream)
+          .PackArrayHeader(3)
+          .Pack(thisPlayer.name)
+          .Pack(keyUpdates[0])
+          .Pack(keyUpdates[1]);
+      }, PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE_ORDERED);
+
+      return Task.FromResult(true);
+    }
+
     public StickyPlatformsServer(ISceneHost scene)
     {
       mScene = scene;
@@ -165,6 +203,7 @@ namespace stickyplatforms_server
       scene.AddRoute("spawn", onPlayerSpawn, _ => _);
       scene.AddRoute("updateHp", updateHp, _ => _);
       scene.AddRoute("updatePhysics", updatePhysics, _ => _);
+      scene.AddRoute("updateKeys", updateKeys, _ => _);
     }
   }
 }
