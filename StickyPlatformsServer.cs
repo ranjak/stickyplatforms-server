@@ -145,8 +145,9 @@ namespace stickyplatforms_server
     {
       Player thisPlayer = mPlayers[packet.Connection.Id];
 
-      thisPlayer.position = packet.ReadObject<Vector2>();
-      thisPlayer.velocity = packet.ReadObject<Vector2>();
+      Vector2[] posVel = packet.ReadObject<Vector2[]>();
+      thisPlayer.position = posVel[0];
+      thisPlayer.velocity = posVel[1];
 
       return Task.FromResult(true);
     }
