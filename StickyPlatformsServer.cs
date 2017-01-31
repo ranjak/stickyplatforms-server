@@ -43,7 +43,7 @@ namespace stickyplatforms_server
 
   public class Player
   {
-    public static int NB_GAME_KEYS = 6;
+    public const int NB_GAME_KEYS = 6;
 
     [MessagePackMember(0)]
     public string name;
