@@ -62,10 +62,6 @@ namespace stickyplatforms_server
     public Player(string name)
     {
       this.name = name;
-      for (int i=0; i<keyStatus.Length; i++)
-      {
-        keyStatus[i] = false;
-      }
     }
   }
 
@@ -136,6 +132,11 @@ namespace stickyplatforms_server
       thisPlayer.position = msg.pos;
       thisPlayer.velocity = new Vector2();
       thisPlayer.hp = msg.hp;
+      // All keys are up initially.
+      for (int i=0; i < thisPlayer.keyStatus.Length; i++)
+      {
+        thisPlayer.keyStatus[i] = false;
+      }
 
       mScene.Broadcast("newPlayer", thisPlayer);
 
