@@ -185,7 +185,8 @@ namespace stickyplatforms_server
           .PackArrayHeader(3)
           .Pack(thisPlayer.name)
           .Pack(keyUpdates[0])
-          .Pack(keyUpdates[1]);
+          .Pack(keyUpdates[1])
+          .Pack(thisPlayer.position);
       }, PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE_ORDERED);
 
       return Task.FromResult(true);
