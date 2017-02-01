@@ -75,6 +75,26 @@ namespace stickyplatforms_server
     public int hp;
   }
 
+  public struct InputUpdateMsg
+  {
+    [MessagePackMember(0)]
+    public string name;
+    [MessagePackMember(1)]
+    public int[] pressedKeys;
+    [MessagePackMember(2)]
+    public int[] releasedKeys;
+    [MessagePackMember(3)]
+    public Vector2 position;
+
+    public InputUpdateMsg(string name, int[] pkeys, int[] rkeys, Vector2 pos)
+    {
+      this.name = name;
+      pressedKeys = pkeys;
+      releasedKeys = rkeys;
+      position = pos;
+    }
+  }
+
   class StickyPlatformsServer
   {
 
@@ -179,15 +199,10 @@ namespace stickyplatforms_server
         thisPlayer.keyStatus[key] = false;
       }
 
-      mScene.Broadcast("remoteInputUpdate", stream =>
-      {
-        MsgPack.Packer.Create(stream)
-          .PackArrayHeader(3)
-          .Pack(thisPlayer.name)
-          .Pack(keyUpdates[0])
-          .Pack(keyUpdates[1])
-          .Pack(thisPlayer.position);
-      }, PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE_ORDERED);
+      mScene.Broadcast("remoteInputUpdate",
+        new InputUpdateMsg(thisPlayer.name, keyUpdates[0], keyUpdates[1], thisPlayer.position),
+        PacketPriority.HIGH_PRIORITY, PacketReliability.RELIABLE_ORDERED
+      );
 
       return Task.FromResult(true);
     }
